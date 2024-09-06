@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+<style>
+    .page{
+        width: 800px;
+        margin: 100px auto;
+        justify-content: center;
+        display: flex;
+    }
+    .page li{
+        width: 40px;
+        height: 40px;
+        text-align: center;
+        line-height: 40px;
+        border: 1px solid #333;
+        border-right: none;
+    }
+    .page li:last-child{
+        border-right: 1px solid #333;
+    }
+    .page li:hover{
+        background: ;
+    }
+
+</style>    
+</head>
+<body>
+    <ul class="page">
+        <li></li>
+        <li></li>
+    </ul>
+    <script src="//code.jquery.com/jquery.min.js"></script>
+    <script>
+        $(function(){
+            const totalPage = 578; // 전체 글 수
+            const postPerPage = 6;
+            const pagesPerGroup = 10;
+            const totalPages = Math.ceil(totalPosts / postsPerPage); // 전체 페이지 수
+            let currentPage = 1;
+
+            function displayPosts(page){
+                const startPost = (page - 1) * postsPerPage + 1;
+                const endPost = Math.min(page * postsPerPage, totalPages);
+            }
+
+
+            fucntion createPaging(currentPage){
+                $("#paging").empty();
+
+                const currentPageGroup = Math.ceil(currentPage / pagesPerGroup);
+                const staertPage = (currentPageGroup - 1) * pagesPerGroup + 1;
+                const endPage = Math.min(currentPageGroup) * pagesPerGroup, totalPages);
+
+                
+                console.log(currentPageGroup);
+            }
+            createPaging(24);
+
+            if(currentPageGroup > 1) {
+                $("#paging").append(<li data-page = "${startPage - 1}">이전</li>);
+            }
+            
+            if(endPage < totalPage) {
+                $("#paging").append(<li data-page = "${startPage - 1}">다음</li>);
+            }
+        }
+
+        
+
+        $("#paging li").on("click",function(){
+            const cpage = $(this).data('page');
+            $("h1").html
+
+
+        })
+        createPaging(currentPage);
+
+        });
+
+
+    </script>
+</body>
+</html>

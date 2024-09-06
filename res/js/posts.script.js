@@ -1,12 +1,27 @@
 $(document).ready(function(){
- 
+   
+    const postsPerPage = 5;
+    const pagesPerGroup = 10; 
+    let currentPage = 1;
+    let totalPosts = 0;
+
+    function postsLoad(page){
+
     //마크다운 파일 목록 가져오기 getJSON
     $.getJSON('posts/posts.list.json', function(data){
-        const mkFiles = data.posts.map(post => `posts/${post}`);
-        
+
+        totalPosts = data.posts.length;
+        const totalPages = Math.ceil(totalPosts / postsPerPage);
+        const start = (page - 1) * postsPerPage;
+        const end = start + postsPerPage;
+        const postsToShow = data.posts.slice(start, end);
+      
+        $("#myposts").empty();
+
         //각각의 포스트를 가져와서 표시
-        $.each(mkFiles, function(index, file){
-          $.get(file, function(text){
+        $.each(postsToShow, function(index, file){
+
+          $.get(`posts/${file}`, function(text){
               const { meta, content } = parseMarkDown(text);
               //console.log(meta);
               //console.log(content);
@@ -46,28 +61,88 @@ $(document).ready(function(){
               `;
               //포스트를 id mypost에 append
               $("#myposts").append(postHTML); 
-
+          }).fail(function(){
+            console.error("데이터를 읽어오는데 에러가 발생했습니다.", file);
           });
         });
 
-        function parseMarkDown(text) {
-            const regex = /^---\s*([\s\S]+?)\s*---\s*([\s\S]*)$/;
-            const match = text.match(regex);
-    
-            if(match) {
-                const meta = {};
-                match[1].split('\n').forEach(line=> {
-                    const [key, value] = line.split(':').map(str => str.trim());
-                    if(key && value){
-                        //console.log(key, "-" , value);
-                    meta[key] = value.replace(/['"]/g, ''); //따옴표 제거 
-                    }
-                });
-                const content = match[2];
-                return { meta, content };
-            }else{
-                return { meta: {}, content: text }
+        //페이징 함수
+        function renderPagination(totalPages, currentPage) {
+            const currentGroup = Math.ceil(currentPage / pagesPerGroup);
+            const startPage = (currentGroup - 1) * pagesPerGroup + 1;
+            const endPage = Math.min(startPage + pagesPerGroup -1, totalPages);
+            let pageHtml = '';
+            //이전
+            if(currentGroup > 1) {
+                const pervGroupPage = (currentGroup -1) * pagesPerGroup;
+                pageHtml += `
+                <li class="page-item">
+                    <a class="page-link" href="${pervGroupPage}">
+                        <i class="ri-arrow-left-s-line"></i>
+                    </a>
+                </li>
+                `;
             }
+            
+            for(let i = startPage; i <= endPage; i++) {
+                let active = currentPage === i ? "active" : ""; 
+                pageHtml += `
+                <li class="page-item ${active}">
+                    <a class="page-link" href="${i}">
+                        ${i}
+                    </a>
+                </li>
+                `;
+            }
+
+            //다음
+            if(currentGroup * pagesPerGroup < totalPages ) {
+                const nextGroupPage = currentGroup * pagesPerGroup + 1;
+                pageHtml += `
+                <li class="page-item">
+                    <a class="page-link" href="${nextGroupPage}">
+                        <i class="ri-arrow-right-s-line"></i>
+                    </a>
+                </li>
+                `;
+            }
+
+            $('.pagination').html(pageHtml);
         }
-   });
-});
+        renderPagination(totalPages, currentPage);
+      });
+
+    } //end posts
+
+    postsLoad(currentPage);
+
+    $(document).on("click", "page-link", function(e){
+        e.preventDefault();
+        const pg = $(this).attr("href");
+        if()
+    })
+
+
+
+}); 
+
+
+function parseMarkDown(text) {
+    const regex = /^---\s*([\s\S]+?)\s*---\s*([\s\S]*)$/;
+    const match = text.match(regex);
+
+    if(match) {
+        const meta = {};
+        match[1].split('\n').forEach(line=> {
+            const [key, value] = line.split(':').map(str => str.trim());
+            if(key && value){
+                //console.log(key, "-" , value);
+            meta[key] = value.replace(/['"]/g, ''); //따옴표 제거 
+            }
+        });
+        const content = match[2];
+        return { meta, content };
+    }else{
+        return { meta: {}, content: text }
+    }
+}
